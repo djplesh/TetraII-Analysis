@@ -36,35 +36,35 @@ def run_rates(pipe_c, ind, name, date, endDate, threshold, path, error_pipe_c):
     except Exception as inst:
         error_pipe_c.send(inst)
         pipe_c.send(-1)
-    
-    
-class RatesError(Exception):   
-    
+
+
+class RatesError(Exception):
+
     """Raised when exceptions are caught in run_rates()"""
-    
+
     pass
 
 
 class CanvasWidget(FigureCanvas):
-    
+
     def __init__(self, fig):
         self.fig = fig
         super(CanvasWidget, self).__init__(self.fig)
         self.toolbar = NavigationToolbar(self, self)
-        
-        
+
+
     def clear(self):
         self.fig.clear()
 
 
 class RatePlot(QtGui.QWidget):
-    
+
     """A widget that processes and displays rate information for events in selected data"""
-    
+
     def __init__(self):
         super(RatePlot, self).__init__()
         self.initUI()
-        
+
     def initUI(self):
         #set variables
         self.path = 'C:/tetra2/array/'
@@ -80,7 +80,7 @@ class RatePlot(QtGui.QWidget):
         self.threads = []
         self.processes = []
         self.todo = 0
-        
+
         #create widgets
         #box Tree
         boxTree = QtGui.QTreeWidget(self)
@@ -90,7 +90,7 @@ class RatePlot(QtGui.QWidget):
         boxTree.itemClicked.connect(self.tree_clicked)
         boxTree.setColumnWidth(0, 120)
         boxTree.setColumnWidth(1, 60)
-        
+
         brParent = QtGui.QTreeWidgetItem(boxTree)
         brParent.setText(0, 'LSU')
         #brParent.setFlags(brParent.flags() | QtCore.Qt.ItemIsTristate |  QtCore.Qt.ItemIsUserCheckable)
@@ -99,7 +99,7 @@ class RatePlot(QtGui.QWidget):
             child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
             child.setCheckState(0, QtCore.Qt.Unchecked)
             self.array.append(child)
-            
+
         alParent = QtGui.QTreeWidgetItem(boxTree)
         alParent.setText(0, 'Hunstville')
         for x in xrange(2):
@@ -107,7 +107,7 @@ class RatePlot(QtGui.QWidget):
             child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
             child.setCheckState(0, QtCore.Qt.Unchecked)
             self.array.append(child)
-            
+
         prParent = QtGui.QTreeWidgetItem(boxTree)
         prParent.setText(0, 'Puerto Rico')
         for x in xrange(9):
@@ -119,7 +119,7 @@ class RatePlot(QtGui.QWidget):
         child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
         child.setCheckState(0, QtCore.Qt.Unchecked)
         self.array.append(child)
-            
+
         paParent = QtGui.QTreeWidgetItem(boxTree)
         paParent.setText(0, 'Panama')
         for x in xrange(5):
@@ -127,38 +127,38 @@ class RatePlot(QtGui.QWidget):
             child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
             child.setCheckState(0, QtCore.Qt.Unchecked)
             self.array.append(child)
-        
+
         #date widgets
         self.yearBox = QtGui.QSpinBox()
         self.yearBox.setRange(2015, 2017)
         self.yearBox.setValue(int(self.date[:4]))
         self.yearBox.setSingleStep(1)
         self.yearBox.valueChanged.connect(self.set_year)
-    
+
         self.monthBox = QtGui.QSpinBox()
         self.monthBox.setRange(1, 12)
         self.monthBox.setValue(int(self.date[5:7]))
         self.monthBox.setSingleStep(1)
         self.monthBox.valueChanged.connect(self.set_month)
-        
+
         self.dayBox = QtGui.QSpinBox()
         self.dayBox.setRange(1, 31)
         self.dayBox.setValue(int(self.date[8:10]))
         self.dayBox.setSingleStep(1)
         self.dayBox.valueChanged.connect(self.set_day)
-        
+
         self.durationBox = QtGui.QSpinBox()
         self.durationBox.setRange(1, 100)
         self.durationBox.setSingleStep(1)
         self.durationBox.valueChanged.connect(self.get_enddate)
-        
+
         #threshold widgets
         self.threshLbl = QtGui.QLabel(str(self.threshold)+u' \u03C3', self)
         self.threshLbl.setAlignment(QtCore.Qt.AlignCenter)
         self.threshLbl.setMargin(2)
-        self.threshLbl.setFixedHeight(20)    
+        self.threshLbl.setFixedHeight(20)
         self.threshLbl.setFixedWidth(40)
-        
+
         self.threshSlider = QtGui.QSlider(QtCore.Qt.Horizontal, self)
         self.threshSlider.setMinimum(20)
         self.threshSlider.setMaximum(40)
@@ -166,30 +166,30 @@ class RatePlot(QtGui.QWidget):
         #self.threshSlider.setTickPosition(QtGui.QSlider.TicksAbove)
         self.threshSlider.setTickInterval(5)
         self.threshSlider.valueChanged.connect(self.set_threshold)
-        
+
         #Bin Widgets
         self.sBinBtn = QtGui.QRadioButton('2 ms', self)
         self.sBinBtn.toggled.connect(self.set_bins)
-        
+
         self.lBinBtn = QtGui.QRadioButton('20 '+u'\u03BC'+'s', self)
         self.lBinBtn.toggled.connect(self.set_bins)
-        
+
         #Graph Control Widgets
         graphBtn = QtGui.QPushButton('Graph', self)
         graphBtn.clicked.connect(self.graph)
-        
+
         cancelBtn = QtGui.QPushButton('Cancel', self)
         cancelBtn.clicked.connect(self.cancel)
-        
+
         prevBtn = QtGui.QPushButton('Previous', self)
         prevBtn.clicked.connect(self.prev_graph)
-        
+
         nextBtn = QtGui.QPushButton('Next', self)
         nextBtn.clicked.connect(self.next_graph)
-        
+
         self.pageLbl = QtGui.QLabel('0 of 0', self)
         self.pageLbl.setAlignment(QtCore.Qt.AlignCenter)
-        
+
         #info widgets
         self.dateLbl = QtGui.QLabel('--', self)
         self.dateLbl.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)
@@ -197,33 +197,33 @@ class RatePlot(QtGui.QWidget):
         self.dateLbl.setMargin(2)
         self.dateLbl.setFixedHeight(20)
         self.dateLbl.setFixedWidth(80)
-        
+
         self.aveCountLbl = QtGui.QLabel('--', self)
         self.aveCountLbl.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)
         self.aveCountLbl.setAlignment(QtCore.Qt.AlignCenter)
         self.aveCountLbl.setMargin(2)
         self.aveCountLbl.setFixedHeight(20)
-        
+
         self.minCountLbl = QtGui.QLabel('--', self)
         self.minCountLbl.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)
         self.minCountLbl.setAlignment(QtCore.Qt.AlignCenter)
         self.minCountLbl.setMargin(2)
         self.minCountLbl.setFixedHeight(20)
-        
+
         #top status bar
         statusLbl = QtGui.QLabel('status:', self)
-        
+
         self.status = QtGui.QLabel('--', self)
         self.status.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)
         self.status.setAlignment(QtCore.Qt.AlignCenter)
         self.status.setMargin(2)
         self.status.setFixedHeight(20)
         self.status.setFixedWidth(160)
-        
+
         #setup graph
-        self.fig = Figure(figsize=(800, 600), 
-                          dpi=72, 
-                          facecolor=(1, 1, 1), 
+        self.fig = Figure(figsize=(800, 600),
+                          dpi=72,
+                          facecolor=(1, 1, 1),
                           edgecolor=(0, 0, 0))
         self.ax = self.fig.add_subplot(111)
         self.ax.plot([0, 1])
@@ -232,8 +232,8 @@ class RatePlot(QtGui.QWidget):
 
         self.tabs.insertTab(0, self.canvas, 'Empty')
         #self.toolbar = NavigationToolbar(self.canvas, self)
-        
-        #setup layout     
+
+        #setup layout
         dateGroup = QtGui.QGroupBox('Dates')
         dateLayout = QtGui.QGridLayout()
         dateLayout.addWidget(QtGui.QLabel('Year', self), 0, 0, 1, 1)
@@ -245,19 +245,19 @@ class RatePlot(QtGui.QWidget):
         dateLayout.addWidget(QtGui.QLabel('Duration:', self), 2, 1, 1, 1)
         dateLayout.addWidget(self.durationBox, 2, 2, 1, 1)
         dateGroup.setLayout(dateLayout)
-        
+
         threshGroup = QtGui.QGroupBox('Threshold')
         threshLayout = QtGui.QGridLayout()
         threshLayout.addWidget(self.threshLbl, 0, 0, 1, 1)
         threshLayout.addWidget(self.threshSlider, 0, 1, 1, 2)
         threshGroup.setLayout(threshLayout)
-        
+
         binGroup = QtGui.QGroupBox('Bin Size')
         binLayout = QtGui.QGridLayout()
         binLayout.addWidget(self.sBinBtn, 0, 0, 1, 1)
         binLayout.addWidget(self.lBinBtn, 0, 1, 1, 1)
         binGroup.setLayout(binLayout)
-        
+
         graphGroup = QtGui.QGroupBox('Graph')
         graphLayout = QtGui.QGridLayout()
         graphLayout.addWidget(graphBtn, 0, 0, 1, 2)
@@ -318,12 +318,13 @@ class RatePlot(QtGui.QWidget):
             if thread.isAlive():
                 return
         #re/initialize varables
+        self.status.setText('--')
+        for i in range(19):
+            self.array[i].setText(1, '--')
         self.threads = []
         self.processes = []
         self.tabs.clear()
         self.set_lists()
-        for i in range(19):
-            self.array[i].setText(1, '--')
         #create a thread for each selected box
         ind = 0
         for box in [x for x in self.array if x.checkState(0) != QtCore.Qt.CheckState.Unchecked]:
@@ -339,7 +340,6 @@ class RatePlot(QtGui.QWidget):
                     self.status.setText('Graphing...') #set status
             except Exception as inst:
                 self.log_error(inst, message='could not create thread')
-                self.status.setText('Error')
             self.todo += 1
             ind += 1
         #if no boxes selected, revert to default tab
@@ -366,16 +366,12 @@ class RatePlot(QtGui.QWidget):
             p.join()
         except RatesError:
             self.log_error(error, 'could not run rates()')
-            self.status.setText('Error')
-            self.todo -= 1
             return
         except Exception as inst:
             self.log_error(inst, 'could not create process')
-            self.status.setText('Error')
-            self.todo -= 1
             return
         finally:
-            pass
+            self.todo -= 1
         #check which bin size to use
         if self.sBinBtn.isChecked():
             self.data[ind] = self.data2m[ind]
@@ -397,16 +393,14 @@ class RatePlot(QtGui.QWidget):
                 self.currentPlot[ind] = 1 
             except Exception as inst:
                 self.log_error(inst, 'could not update figure')
-                self.status.setText('Error')
                 return
             self.aveCountLbl.setText(str('%.3f' % self.info[ind][0][0]))
             self.minCountLbl.setText(str(self.info[ind][0][1]))
             self.dateLbl.setText(self.info[ind][0][2])
         else:
             self.currentPlot[ind] = 0
-        self.todo -= 1
-        if self.todo == 0:
-            self.status.setText('Done Graphing')
+        if (self.todo == 0) and (self.status.text() != 'Error'):
+                self.status.setText('Done Graphing')
         self.tabs.setCurrentIndex(ind)
         self.array[ind].setText(1, str(len(self.data[ind])))
         self.set_num_plots()
@@ -421,6 +415,7 @@ class RatePlot(QtGui.QWidget):
                     + ' [' + str(message) + ']  '
                     + str(type(inst)) 
                     + '  ("' + str(inst) + '")' + '\n\n')
+        self.status.setText('Error')
          
     def get_config(self):
         f = open(self.config, 'r')
