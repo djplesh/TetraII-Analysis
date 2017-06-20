@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+@author: Jonah Hoffman
+"""
+
 import sys
 from os import startfile, getcwd
 import threading
