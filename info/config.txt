@@ -1,0 +1,10 @@
+config file for Tetra-II analysis program
+
+*please refer to help file for proper format
+
+
+path: C:/tetra2/array/
+
+
+date: 2017_03_25
+

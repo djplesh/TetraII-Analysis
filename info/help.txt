@@ -1,0 +1,39 @@
+Help doc for Tetra-II Analysis program
+
+requirements:
+	-windows os
+	-python 2.7
+	-PySide library
+
+use:
+	-set date of data to be viewed
+	
+	-click 'Graph' button
+		status should change to "Graphing"
+		
+	-Once done, status should change to either "Done graphing" or "no plots"
+	
+	-If an event was detected that day, the graph will display the histogram for a single event
+		if multiple events detected, then event graphs may be cycled with the 'Previous' & 'Next' buttons
+		if no events were found then graph remains unchanged
+
+variables:
+	-path: The system path to data.
+		Should include box directory & end with '/'
+		ex:
+			C:/tetra2/array/lsu/LSU_01/
+			where LSU_01/ contains dev1/ & dev2/
+			
+	-date: The date of the data to be viewed.
+
+Controls:
+	-Set Path: will open a prompt to enter a new system path *see variable path*
+	
+	-Graph: produces graph for data that day if any events found
+	
+	-Pevious/Next: cycle through graphs of events if mutliple exist
+	
+	-Year/Month/Day: adjust date *see variable date*
+	
+	-GraphToolBar: can be used to move, zoom, and save graph
+	
