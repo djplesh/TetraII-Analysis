@@ -457,6 +457,7 @@ class RatePlot(QtGui.QWidget):
         if dirname == '':
             return
         dirname = re.sub('\\\\', '/', dirname) + '/'
+        self.path = dirname
         f = open(self.config, 'r')
         text = []
         with f:
