@@ -86,10 +86,12 @@ def rates(box_num, start_date, end_date = None, threshold = None, path0 = None):
         try:
             hist_data = np.load(hist_file)
         except:
-            pass
+            continue
         '''check for data'''
-        
-        ave = np.sum(hist_data, axis=0)[1]/43200000
+        try:
+            ave = np.sum(hist_data, axis=0)[1]/43200000
+        except:
+            continue
         std = np.sqrt((np.sum((hist_data-ave)**2, axis = 0)[1] + (43200000 - len(hist_data))*ave**2)/(43200000-1))
         
         min_bin = np.ceil(std*threshold + ave)
