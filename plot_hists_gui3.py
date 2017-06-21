@@ -48,8 +48,9 @@ def ints_to_date(d, m, y):
 ##############################################################################        
 ##############################################################################        
 
-def rates(box_num, start_date, duration = 1, threshold = 20, path0):
+def rates(box_num, start_date, duration, threshold, path0):
     """search bgo data for candidate events above user defined threshold""" 
+    errors = []
     
     start_d = int(start_date[8:10])
     start_m = int(start_date[5:7])
@@ -72,17 +73,18 @@ def rates(box_num, start_date, duration = 1, threshold = 20, path0):
         dev2_file =  path + 'dev2_' + date_str[8:] + '.npy'
         hist_file = path + 'hist_' + date_str[8:] + '.npy'
         
-        '''check that file exists'''
+        #check that file exists
         try:
             hist_data = np.load(hist_file)
-        except:
+        except IOError:
+            errors.append('could not find file: %s' % hist_file)
             continue
-        '''check for data'''
-
+        #check that there is data in file
         try:
             ave = np.sum(hist_data, axis=0)[1]/43200000
-        except:
-            continue
+        except IndexError:
+            errors.append('no data in file: %s' % hist_file)
+        
         std = np.sqrt((np.sum((hist_data-ave)**2, axis = 0)[1] + (43200000 - len(hist_data))*ave**2)/(43200000-1))
         
         min_bin = np.ceil(std*threshold + ave)
@@ -122,4 +124,4 @@ def rates(box_num, start_date, duration = 1, threshold = 20, path0):
                 
         loop_day = loop_day + timedelta(1)
         
-    return data_2ms, data_20us, trig_info
+    return data_2ms, data_20us, trig_info, errors

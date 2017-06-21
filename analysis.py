@@ -9,7 +9,6 @@ import threading
 import multiprocessing as mp
 from calendar import monthrange
 from time import gmtime, strftime
-import datetime as dt
 import re
 
 from PySide import QtGui, QtCore
@@ -27,14 +26,12 @@ def run_rates(pipe_c, ind, name, date, duration, threshold, path, error_pipe_c):
         data2m = []
         data20u = []
         info = []
-        data2m, data20u, info = rates(box_num=name,
-                                      start_date=date,
-                                      duration=duration,
-                                      threshold=threshold,
-                                      path0=path)
+        data2m, data20u, info, errors = rates(box_num=name, start_date=date, duration=duration, 
+                                              threshold=threshold, path0=path)
+        error_pipe_c.send(errors)
         pipe_c.send([data2m, data20u, info])
     except Exception as inst:
-        error_pipe_c.send(inst)
+        error_pipe_c.send([inst])
         pipe_c.send(-1)
 
 
@@ -92,7 +89,6 @@ class RatePlot(QtGui.QWidget):
 
         brParent = QtGui.QTreeWidgetItem(boxTree)
         brParent.setText(0, 'LSU')
-        #brParent.setFlags(brParent.flags() | QtCore.Qt.ItemIsTristate |  QtCore.Qt.ItemIsUserCheckable)
         for x in xrange(2):
             child = QtGui.QTreeWidgetItem(brParent, ['LSU_0{}'.format(x+1), '--'])
             child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
@@ -218,6 +214,11 @@ class RatePlot(QtGui.QWidget):
         self.status.setMargin(2)
         self.status.setFixedHeight(20)
         self.status.setFixedWidth(160)
+        
+        #infoBox
+        self.infoBox = QtGui.QListWidget(self)
+        self.infoBox.setFixedWidth(200)
+        self.infoBox.setFixedHeight(200)
 
         #setup graph
         self.fig = Figure(figsize=(800, 600),
@@ -284,6 +285,8 @@ class RatePlot(QtGui.QWidget):
         boxLayout = QtGui.QVBoxLayout()
         boxLayout.addLayout(statusLayout)
         boxLayout.addWidget(boxTree)
+        boxLayout.addWidget(QtGui.QLabel('Run Messages', self))
+        boxLayout.addWidget(self.infoBox)
         
         graphLayout = QtGui.QVBoxLayout()
         graphLayout.addWidget(self.tabs)
@@ -356,20 +359,22 @@ class RatePlot(QtGui.QWidget):
             p.start()
             self.processes.append(p)
             hold = pipe_p.recv()
+            errors = error_pipe_p.recv()
             if hold == -1:
-                error = error_pipe_p.recv()
                 raise RatesError
             self.data2m[ind] = hold[0]
             self.data20u[ind] = hold[1]
             self.info[ind] = hold[2]
             p.join()
         except RatesError:
-            self.log_error(error, 'could not run rates()')
+            self.log_error(errors[0], 'could not run rates()')
             return
         except Exception as inst:
             self.log_error(inst, 'could not create process')
             return
         finally:
+            for error in errors:
+                self.infoBox.addItem(error)
             self.todo -= 1
         #check which bin size to use
         if self.sBinBtn.isChecked():

@@ -1,2 +1,1 @@
-2017-06-21 15:15:30   Error:  [could not run rates()]  <type 'exceptions.IOError'>  ("[Errno 2] No such file or directory: 'C:/tetra2/array/UAH_01/03_2017/hist_25.npy'")
 
