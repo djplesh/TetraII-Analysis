@@ -148,7 +148,7 @@ class RatePlot(QtGui.QWidget):
         self.dayBox.valueChanged.connect(self.set_day)
 
         self.durationBox = QtGui.QSpinBox()
-        self.durationBox.setRange(1, 100)
+        self.durationBox.setRange(1, 1000)
         self.durationBox.setSingleStep(1)
         self.durationBox.valueChanged.connect(self.get_enddate)
 
