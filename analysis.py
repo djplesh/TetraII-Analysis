@@ -160,11 +160,11 @@ class RatePlot(QtGui.QWidget):
         self.threshLbl.setFixedWidth(40)
 
         self.threshSlider = QtGui.QSlider(QtCore.Qt.Horizontal, self)
-        self.threshSlider.setMinimum(20)
+        self.threshSlider.setMinimum(10)
         self.threshSlider.setMaximum(40)
         self.threshSlider.setValue(30)
-        #self.threshSlider.setTickPosition(QtGui.QSlider.TicksAbove)
-        self.threshSlider.setTickInterval(5)
+        self.threshSlider.setTickPosition(QtGui.QSlider.TicksAbove)
+        self.threshSlider.setTickInterval(10)
         self.threshSlider.valueChanged.connect(self.set_threshold)
 
         #Bin Widgets
