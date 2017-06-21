@@ -48,36 +48,26 @@ def ints_to_date(d, m, y):
 ##############################################################################        
 ##############################################################################        
 
-def rates(box_num, start_date, end_date = None, threshold = None, path0 = None):
+def rates(box_num, start_date, duration = 1, threshold = 20, path0):
     """search bgo data for candidate events above user defined threshold""" 
-    
-    if not end_date:
-        end_date = start_date
     
     start_d = int(start_date[8:10])
     start_m = int(start_date[5:7])
-    start_y = int(start_date[0:4]) 
+    start_y = int(start_date[0:4])
     start_day = date(start_y, start_m, start_d)
     
-    end_d = int(end_date[8:10])
-    end_m = int(end_date[5:7])
-    end_y = int(end_date[0:4])
-    end_day = date(end_y, end_m, end_d)
-        
     data_2ms = []
     data_20us = []
     trig_info = []
-        
+    
     loop_day = start_day
-    while loop_day < end_day + timedelta(1):
+    for loop_day in [loop_day + timedelta(x) for x in range(duration)]:
         
         date_str = ints_to_date(loop_day.day, loop_day.month, loop_day.year)
         
         folder = date_str[5:7] + '_' + date_str[0:4] + '/'
-        if not path0: 
-            path = 'D:/rates/' + box_num + '/' + folder
-        else:
-            path = path0 + box_num + '/' + folder
+        
+        path = path0 + box_num + '/' + folder
         dev1_file =  path + 'dev1_' + date_str[8:] + '.npy'
         dev2_file =  path + 'dev2_' + date_str[8:] + '.npy'
         hist_file = path + 'hist_' + date_str[8:] + '.npy'
@@ -86,14 +76,12 @@ def rates(box_num, start_date, end_date = None, threshold = None, path0 = None):
         try:
             hist_data = np.load(hist_file)
         except:
-            loop_day += timedelta(1)
             continue
         '''check for data'''
 
         try:
             ave = np.sum(hist_data, axis=0)[1]/43200000
         except:
-            loop_day += timedelta(1)
             continue
         std = np.sqrt((np.sum((hist_data-ave)**2, axis = 0)[1] + (43200000 - len(hist_data))*ave**2)/(43200000-1))
         

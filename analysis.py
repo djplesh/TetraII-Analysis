@@ -21,7 +21,7 @@ from matplotlib.figure import Figure
 from plot_hists_gui3 import rates
 
 
-def run_rates(pipe_c, ind, name, date, endDate, threshold, path, error_pipe_c):
+def run_rates(pipe_c, ind, name, date, duration, threshold, path, error_pipe_c):
     """runs rates() in a format able to be subprocessed (see pickle library)"""
     try:
         data2m = []
@@ -29,7 +29,7 @@ def run_rates(pipe_c, ind, name, date, endDate, threshold, path, error_pipe_c):
         info = []
         data2m, data20u, info = rates(box_num=name,
                                       start_date=date,
-                                      end_date=endDate,
+                                      duration=duration,
                                       threshold=threshold,
                                       path0=path)
         pipe_c.send([data2m, data20u, info])
@@ -73,7 +73,6 @@ class RatePlot(QtGui.QWidget):
         self.errorlog = str(getcwd()) + '/info/errorlog.txt'
         self.config = str(getcwd()) + '/info/config.txt'
         self.get_config()
-        self.endDate = self.date
         self.duration = 1
         self.threshold = 30
         self.set_lists()
@@ -352,7 +351,7 @@ class RatePlot(QtGui.QWidget):
             pipe_p, pipe_c = mp.Pipe()
             error_pipe_p, error_pipe_c = mp.Pipe()
             p = mp.Process(target=run_rates, args=(pipe_c, ind, name, self.date, 
-                                                   self.endDate, self.threshold,
+                                                   self.duration, self.threshold,
                                                    self.path, error_pipe_c))
             p.start()
             self.processes.append(p)
@@ -494,10 +493,7 @@ class RatePlot(QtGui.QWidget):
         self.get_enddate()
         
     def get_enddate(self):
-        date = dt.date(self.yearBox.value(), 
-                       self.monthBox.value(), 
-                       self.dayBox.value()) + dt.timedelta(days=self.durationBox.value()-1)
-        self.endDate = '%s_%s_%s' % (str(date.year), str(date.month).zfill(2), str(date.day).zfill(2))
+        self.duration = self.durationBox.value()
         
     def set_threshold(self):
         self.threshold = self.threshSlider.value()
