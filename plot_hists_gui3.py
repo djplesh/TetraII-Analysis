@@ -15,7 +15,7 @@ def get_bins(c, min_bin):
     """
     
     b2a=np.where(c > min_bin)
-    b2b=np.where(c < 600)  #elsiminates periodic noise trigger ~900
+    b2b=np.where(c < 500)  #elsiminates periodic noise trigger ~900
     b2c=np.intersect1d(b2a, b2b)   
     return b2c
 
@@ -83,7 +83,10 @@ def rates(box_num, start_date, end_date = None, threshold = None, path0 = None):
         hist_file = path + 'hist_' + date_str[8:] + '.npy'
         
         '''check that file exists'''
-        hist_data = np.load(hist_file)
+        try:
+            hist_data = np.load(hist_file)
+        except:
+            pass
         '''check for data'''
         
         ave = np.sum(hist_data, axis=0)[1]/43200000
