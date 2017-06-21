@@ -1,1 +1,5 @@
 *.pyc
+
+info/config.txt
+
+info/errorlog.txt
