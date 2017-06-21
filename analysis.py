@@ -82,9 +82,9 @@ class RatePlot(QtGui.QWidget):
         boxTree = QtGui.QTreeWidget(self)
         header = QtGui.QTreeWidgetItem(['Box Select', 'Events'])
         boxTree.setHeaderItem(header)
-        boxTree.setFixedWidth(200)
+        boxTree.setFixedWidth(240)
         boxTree.itemClicked.connect(self.tree_clicked)
-        boxTree.setColumnWidth(0, 120)
+        boxTree.setColumnWidth(0, 160)
         boxTree.setColumnWidth(1, 60)
 
         brParent = QtGui.QTreeWidgetItem(boxTree)
@@ -217,7 +217,7 @@ class RatePlot(QtGui.QWidget):
         
         #infoBox
         self.infoBox = QtGui.QListWidget(self)
-        self.infoBox.setFixedWidth(200)
+        self.infoBox.setFixedWidth(240)
         self.infoBox.setFixedHeight(200)
 
         #setup graph
@@ -328,8 +328,7 @@ class RatePlot(QtGui.QWidget):
         self.tabs.clear()
         self.set_lists()
         #create a thread for each selected box
-        ind = 0
-        for box in [x for x in self.array if x.checkState(0) != QtCore.Qt.CheckState.Unchecked]:
+        for ind, box in zip(range(19), [x for x in self.array if x.checkState(0) != QtCore.Qt.CheckState.Unchecked]):
             fig = Figure(figsize=(800, 600), dpi=72, 
                          facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
             self.tabs.insertTab(ind, CanvasWidget(fig), box.text(0))
@@ -404,9 +403,10 @@ class RatePlot(QtGui.QWidget):
         else:
             self.currentPlot[ind] = 0
         if (self.todo == 0) and (self.status.text() != 'Error'):
-                self.status.setText('Done Graphing')
+            self.status.setText('Done Graphing')
+        for box in [box for box in self.array if box.text(0) == name]:
+            box.setText(1, str(len(self.data[ind])))
         self.tabs.setCurrentIndex(ind)
-        self.array[ind].setText(1, str(len(self.data[ind])))
         self.set_num_plots()
         
     def cancel(self):
