@@ -86,11 +86,14 @@ def rates(box_num, start_date, end_date = None, threshold = None, path0 = None):
         try:
             hist_data = np.load(hist_file)
         except:
+            loop_day += timedelta(1)
             continue
         '''check for data'''
+
         try:
             ave = np.sum(hist_data, axis=0)[1]/43200000
         except:
+            loop_day += timedelta(1)
             continue
         std = np.sqrt((np.sum((hist_data-ave)**2, axis = 0)[1] + (43200000 - len(hist_data))*ave**2)/(43200000-1))
         
