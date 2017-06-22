@@ -4,7 +4,7 @@
 """
 
 import sys
-from os import startfile, getcwd
+from os import startfile, getcwd, path
 import threading
 import multiprocessing as mp
 from calendar import monthrange
@@ -423,15 +423,13 @@ class RatePlot(QtGui.QWidget):
         self.status.setText('Error')
          
     def get_config(self):
-        try:
-            f = open(self.config, 'r')
-        except:
+        if not path.isfile(self.errorlog):
+            open(self.errorlog, 'w+')
+        if not path.isfile(self.config):
             open(self.config, 'w+')
             return
-        try:
-            e = open(self.errorlog, 'r')
-        except:
-            open(self.errorlog, 'w+')
+        
+        f = open(self.config, 'r')
         variables = {'path: ': self._set_path, 
                      'date: ': self._set_date}
         with f:
