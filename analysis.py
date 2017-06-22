@@ -321,6 +321,7 @@ class RatePlot(QtGui.QWidget):
                 return
         #re/initialize varables
         self.status.setText('--')
+        self.infoBox.clear()
         for i in range(19):
             self.array[i].setText(1, '--')
         self.threads = []
@@ -402,7 +403,7 @@ class RatePlot(QtGui.QWidget):
             self.dateLbl.setText(self.info[ind][0][2])
         else:
             self.currentPlot[ind] = 0
-        if (self.todo == 0) and (self.status.text() != 'Error'):
+        if self.todo == 0:
             self.status.setText('Done Graphing')
         for box in [box for box in self.array if box.text(0) == name]:
             box.setText(1, str(len(self.data[ind])))
