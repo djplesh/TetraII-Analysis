@@ -622,6 +622,7 @@ class Window(QtGui.QMainWindow):
         self.setCentralWidget(center)
         self.setGeometry(200, 200, 900, 700)  
         self.setWindowTitle('Tetra-II Analysis')
+        self.setWindowIcon(QtGui.QIcon('icons/lsu.png'))
         self.show()
         
     def open_help(self):

@@ -15,7 +15,7 @@ def get_bins(c, min_bin):
     """
     
     b2a=np.where(c > min_bin)
-    b2b=np.where(c < 500)  #elsiminates periodic noise trigger ~900
+    b2b=np.where(c < 500)  #eliminates periodic noise trigger ~900
     b2c=np.intersect1d(b2a, b2b)   
     return b2c
 
