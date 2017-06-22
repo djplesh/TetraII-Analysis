@@ -9,15 +9,6 @@ import numpy as np
 from datetime import date
 from datetime import timedelta
 
-def get_bins(c, min_bin):
-    """find bins with at least the min count over the threshold
-    make sure less than 600 for noise spikes
-    """
-    
-    b2a=np.where(c > min_bin)
-    b2b=np.where(c < 500)  #eliminates periodic noise trigger ~900
-    b2c=np.intersect1d(b2a, b2b)   
-    return b2c
 
 def get_nearest(array, value):
     idx = (np.abs(array - value)).argmin()
@@ -87,12 +78,19 @@ def rates(box_num, start_date, duration, threshold, path0):
         
         std = np.sqrt((np.sum((hist_data-ave)**2, axis = 0)[1] + (43200000 - len(hist_data))*ave**2)/(43200000-1))
         
-        min_bin = np.ceil(std*threshold + ave)
+        above = hist_data[:,1] - ave
+        above[above < 0] = 0
+        bin_sig = above / std
+        bin_sig = np.floor(bin_sig).astype(np.int32)
+        bin_sig = bin_sig[bin_sig >= 0] 
+        bgo_triggers = np.where(bin_sig >= threshold)[0]
         
-        bgo_triggers = get_bins(hist_data[:,1], min_bin)
+        
+        
         
         if len(bgo_triggers) > 0:
             for trig in bgo_triggers:
+                min_bin = hist_data[trig][1]
                 temp = []
                 trig_ts = hist_data[:,0][trig]
                 xmin_bin = trig_ts - 0.5
