@@ -86,9 +86,7 @@ def rates(box_num, start_date, duration, threshold, path0):
         bgo_triggers = np.where(bin_sig >= threshold)[0]
         min_bin = np.ceil(threshold*std + ave)
         
-        
-        
-        
+
         if len(bgo_triggers) > 0:
             for trig in bgo_triggers:
                 temp = []
@@ -123,3 +121,65 @@ def rates(box_num, start_date, duration, threshold, path0):
         loop_day = loop_day + timedelta(1)
         
     return data_2ms, data_20us, trig_info, errors
+
+
+def daily_rates(box_num, start_date, duration, threshold, path0):
+    
+    errors = []
+    start_d = int(start_date[8:10])
+    start_m = int(start_date[5:7])
+    start_y = int(start_date[0:4])
+    start_day = date(start_y, start_m, start_d)
+
+    sigma_counts = []
+    daily_counts = []
+    
+    
+    loop_day = start_day
+    for loop_day in [loop_day + timedelta(x) for x in range(duration)]:
+        
+        date_str = ints_to_date(loop_day.day, loop_day.month, loop_day.year)
+        
+        folder = date_str[5:7] + '_' + date_str[0:4] + '/'
+        
+        path = path0 + box_num + '/' + folder
+        dev1_file =  path + 'dev1_' + date_str[8:] + '.npy'
+        dev2_file =  path + 'dev2_' + date_str[8:] + '.npy'
+        hist_file = path + 'hist_' + date_str[8:] + '.npy'
+        
+        #check that file exists
+        try:
+            hist_data = np.load(hist_file)
+        except IOError:
+            errors.append('could not find file: %s' % hist_file)
+            continue
+        #check that there is data in file
+        try:
+            ave = np.sum(hist_data, axis=0)[1]/43200000
+        except IndexError:
+            errors.append('no data in file: %s' % hist_file)
+            
+        bgo = hist_data[:,1]
+        ave = np.sum(hist_data, axis=0)[1]/43200000
+        std_counts = np.sqrt((np.sum((hist_data-ave)**2, axis = 0)[1] + (43200000 - len(hist_data))*ave**2)/(43200000-1))
+        above = bgo - ave
+        above[above < 0] = 0
+        bin_sig = above / std_counts
+        bin_sig = np.floor(bin_sig).astype(np.int32)
+        bin_sig = bin_sig[bin_sig >= 0]
+        n_bin = np.bincount(bin_sig)
+        sigma_counts.append(n_bin)
+
+            
+        dev1_data = np.load(dev1_file)
+        dev2_data = np.load(dev2_file)
+        total_data = dev1_data[0] + dev1_data[1] + dev1_data[2] + dev2_data[0] + dev2_data[1] + dev2_data[2]        
+        bins_num=np.linspace(0,86400,60*24+1,dtype=np.float64)
+        bgo, bins = np.histogram(total_data, bins_num)
+        daily_counts.append(bgo)
+        
+    return sigma_counts, daily_counts
+
+        
+
+        
