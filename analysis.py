@@ -428,6 +428,10 @@ class RatePlot(QtGui.QWidget):
         except:
             open(self.config, 'w+')
             return
+        try:
+            e = open(self.errorlog, 'r')
+        except:
+            open(self.errorlog, 'w+')
         variables = {'path: ': self._set_path, 
                      'date: ': self._set_date}
         with f:
