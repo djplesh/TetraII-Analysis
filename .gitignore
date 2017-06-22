@@ -1,5 +1,4 @@
 *.pyc
 
-info/config.txt
-
-info/errorlog.txt
+config.txt
+errorlog.txt
