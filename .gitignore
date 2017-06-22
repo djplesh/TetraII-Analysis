@@ -1,4 +1,9 @@
+#do not include binary python files
 *.pyc
 
+#do not include temporary files
+*.swp
+
+#do no include user specific files
 config.txt
 errorlog.txt
