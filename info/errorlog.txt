@@ -1,3 +1,0 @@
-
-2017-06-22 15:33:16   Error:  [could not create process]  <type 'exceptions.TypeError'>  ("cannot concatenate 'str' and 'int' objects")
-
