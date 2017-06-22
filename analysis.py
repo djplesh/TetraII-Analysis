@@ -428,7 +428,6 @@ class RatePlot(QtGui.QWidget):
         if not path.isfile(self.config):
             open(self.config, 'w+')
             return
-        
         f = open(self.config, 'r')
         variables = {'path: ': self._set_path, 
                      'date: ': self._set_date}
