@@ -423,7 +423,11 @@ class RatePlot(QtGui.QWidget):
         self.status.setText('Error')
          
     def get_config(self):
-        f = open(self.config, 'r')
+        try:
+            f = open(self.config, 'r')
+        except:
+            open(self.config, 'w+')
+            return
         variables = {'path: ': self._set_path, 
                      'date: ': self._set_date}
         with f:
@@ -435,6 +439,31 @@ class RatePlot(QtGui.QWidget):
         self.path = path
     def _set_date(self, date):
         self.date = date
+        
+    def set_path(self):
+        dirname = QtGui.QFileDialog.getExistingDirectory(self)
+        if dirname == '':
+            return
+        dirname = re.sub('\\\\', '/', dirname) + '/'
+        self.path = dirname
+        f = open(self.config, 'r')
+        text = []
+        found = False
+        with f:
+            for line in f:
+                if line.startswith('path:'):
+                    text.append('path: %s\n' % str(dirname))
+                    found = True
+                else:
+                    text.append(line)
+        if not found:
+            text.append('\npath: %s\n' % str(dirname))
+        for line in text:
+            print line
+        f = open(self.config, 'w+')
+        with f:
+            for line in text:
+                f.write(line)
         
     def set_lists(self):
         self.bins = [0.002 for x in range(19)]
@@ -456,25 +485,6 @@ class RatePlot(QtGui.QWidget):
     
     def box_clicked(self, item, column):
         pass
-          
-    def set_path(self):
-        dirname = QtGui.QFileDialog.getExistingDirectory(self)
-        if dirname == '':
-            return
-        dirname = re.sub('\\\\', '/', dirname) + '/'
-        self.path = dirname
-        f = open(self.config, 'r')
-        text = []
-        with f:
-            for line in f:
-                if line.startswith('path:'):
-                    text.append('path: %s\\\n\n' % str(dirname))
-                else:
-                    text.append(line)
-        f = open(self.config, 'w+')
-        with f:
-            for line in text:
-                f.write(line)
 
     def set_year(self):
         self.date = str(self.yearBox.value()) + self.date[4:10]
