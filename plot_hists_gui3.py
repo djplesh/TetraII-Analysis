@@ -84,13 +84,13 @@ def rates(box_num, start_date, duration, threshold, path0):
         bin_sig = np.floor(bin_sig).astype(np.int32)
         bin_sig = bin_sig[bin_sig >= 0] 
         bgo_triggers = np.where(bin_sig >= threshold)[0]
+        min_bin = np.ceil(threshold*std + ave)
         
         
         
         
         if len(bgo_triggers) > 0:
             for trig in bgo_triggers:
-                min_bin = hist_data[trig][1]
                 temp = []
                 trig_ts = hist_data[:,0][trig]
                 xmin_bin = trig_ts - 0.5
