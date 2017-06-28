@@ -459,8 +459,24 @@ class RatePlot(QtGui.QWidget):
                     text.append(line)
         if not found:
             text.append('\npath: %s\n' % str(dirname))
-        for line in text:
-            print line
+        f = open(self.config, 'w+')
+        with f:
+            for line in text:
+                f.write(line)
+                
+    def save_date(self):
+        f = open(self.config, 'r')
+        text = []
+        found = False
+        with f:
+            for line in f:
+                if line.startswith('date:'):
+                    text.append('date: %s\n' % str(self.date))
+                    found = True
+                else:
+                    text.append(line)
+        if not found:
+            text.append('\ndate: %s\n' % str(self.date))
         f = open(self.config, 'w+')
         with f:
             for line in text:
@@ -615,6 +631,11 @@ class Window(QtGui.QMainWindow):
         pathAction.setStatusTip('Set Path')
         pathAction.triggered.connect(center.set_path)
         
+        dateAction = QtGui.QAction('&Date', self)
+        dateAction.setShortcut('Ctrl+D')
+        dateAction.setStatusTip('Save current date as default')
+        dateAction.triggered.connect(center.save_date)
+        
         errorAction = QtGui.QAction('&ErrorLog', self)
         errorAction.setShortcut('Ctrl+E')
         errorAction.setStatusTip('Open Errorlog')
@@ -625,6 +646,7 @@ class Window(QtGui.QMainWindow):
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(pathAction)
+        fileMenu.addAction(dateAction)
         fileMenu.addAction(errorAction)
         fileMenu.addAction(exitAction)   
         helpMenu = menubar.addMenu('&Help')
